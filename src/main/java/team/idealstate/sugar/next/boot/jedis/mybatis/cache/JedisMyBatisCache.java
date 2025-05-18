@@ -27,8 +27,12 @@ import lombok.NonNull;
 import org.apache.ibatis.cache.Cache;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.core.JsonFactory;
 import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.ObjectMapper;
+import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.json.JsonMapper;
+import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import team.idealstate.sugar.internal.com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import team.idealstate.sugar.internal.com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import team.idealstate.sugar.internal.com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.next.boot.jedis.JedisProvider;
 import team.idealstate.sugar.next.function.Lazy;
@@ -107,7 +111,11 @@ public class JedisMyBatisCache implements Cache {
         });
     }
 
-    private final Lazy<ObjectMapper> json = lazy(() -> new ObjectMapper(new JsonFactory()).findAndRegisterModules());
+    private final Lazy<ObjectMapper> json = lazy(() -> new JsonMapper()
+            .registerModule(new JavaTimeModule())
+            .registerModule(new ParameterNamesModule())
+            .registerModule(new Jdk8Module())
+            .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL));
 
     protected byte[] serialize(Object value) throws IOException {
         Log.debug(() -> String.format("Serializing cache [%s] with [%s]...", getId(), value));
