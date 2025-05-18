@@ -19,6 +19,7 @@ package team.idealstate.sugar.next.boot.jedis.mybatis.cache;
 import static team.idealstate.sugar.next.function.Functional.lazy;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -123,7 +124,7 @@ public class JedisMyBatisCache implements Cache {
     }
 
     protected Object deserialize(@NotNull byte[] value) throws IOException {
-        Log.debug(() -> String.format("Deserializing cache [%s] with [%s]...", getId(), value));
+        Log.debug(() -> String.format("Deserializing cache [%s] with [%s]...", getId(), Arrays.toString(value)));
         return json.get().readValue(value, Object.class);
     }
 }
