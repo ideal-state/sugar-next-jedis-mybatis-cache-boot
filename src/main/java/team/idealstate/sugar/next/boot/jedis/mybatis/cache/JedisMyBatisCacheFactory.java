@@ -23,6 +23,8 @@ import team.idealstate.sugar.next.boot.mybatis.spi.CacheFactory;
 import team.idealstate.sugar.next.context.annotation.component.Component;
 import team.idealstate.sugar.next.context.annotation.feature.Autowired;
 import team.idealstate.sugar.next.context.annotation.feature.DependsOn;
+import team.idealstate.sugar.next.context.annotation.feature.Qualifier;
+import team.idealstate.sugar.next.databind.codec.Codec;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 
@@ -42,7 +44,7 @@ public class JedisMyBatisCacheFactory implements CacheFactory {
     @Override
     public Cache createCache(@NotNull String id, Integer expired, @NotNull Map<String, Object> properties) {
         Validation.notNull(id, "Id must not be null.");
-        return new JedisMyBatisCache(id, getJedisProvider(), expired);
+        return new JedisMyBatisCache(id, getJedisProvider(), expired, codec);
     }
 
     private volatile JedisProvider jedisProvider;
@@ -55,5 +57,12 @@ public class JedisMyBatisCacheFactory implements CacheFactory {
     @Autowired
     public void setJedisProvider(@NotNull JedisProvider jedisProvider) {
         this.jedisProvider = jedisProvider;
+    }
+
+    private volatile Codec codec;
+
+    @Autowired
+    public void setCodec(@NotNull @Qualifier("GeneralCodec") Codec codec) {
+        this.codec = codec;
     }
 }

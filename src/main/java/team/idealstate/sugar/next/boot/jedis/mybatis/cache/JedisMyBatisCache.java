@@ -16,29 +16,22 @@
 
 package team.idealstate.sugar.next.boot.jedis.mybatis.cache;
 
-import static team.idealstate.sugar.next.function.Functional.lazy;
+import lombok.Data;
+import lombok.NonNull;
+import org.apache.ibatis.cache.Cache;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
+import team.idealstate.sugar.logging.Log;
+import team.idealstate.sugar.next.boot.jedis.JedisProvider;
+import team.idealstate.sugar.next.databind.codec.Codec;
+import team.idealstate.sugar.next.function.closure.Function;
+import team.idealstate.sugar.validate.annotation.NotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import lombok.Data;
-import lombok.NonNull;
-import org.apache.ibatis.cache.Cache;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisException;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.ObjectMapper;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.json.JsonMapper;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import team.idealstate.sugar.internal.com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import team.idealstate.sugar.logging.Log;
-import team.idealstate.sugar.next.boot.jedis.JedisProvider;
-import team.idealstate.sugar.next.function.Lazy;
-import team.idealstate.sugar.next.function.closure.Function;
-import team.idealstate.sugar.validate.annotation.NotNull;
 
 @Data
 public class JedisMyBatisCache implements Cache {
@@ -51,6 +44,9 @@ public class JedisMyBatisCache implements Cache {
 
     private final Integer expired;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
+    @NonNull
+    private final Codec codec;
 
     private Object execute(Function<Jedis, Object> callback) {
         try (Jedis jedis = jedisProvider.getJedisPool().getResource()) {
@@ -112,19 +108,13 @@ public class JedisMyBatisCache implements Cache {
         });
     }
 
-    private final Lazy<ObjectMapper> json = lazy(() -> new JsonMapper()
-            .registerModule(new JavaTimeModule())
-            .registerModule(new ParameterNamesModule())
-            .registerModule(new Jdk8Module())
-            .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL));
-
     protected byte[] serialize(Object value) throws IOException {
         Log.debug(() -> String.format("Serializing cache [%s] with [%s]...", getId(), value));
-        return json.get().writeValueAsBytes(value);
+        return codec.serialize(value);
     }
 
     protected Object deserialize(@NotNull byte[] value) throws IOException {
         Log.debug(() -> String.format("Deserializing cache [%s] with [%s]...", getId(), Arrays.toString(value)));
-        return json.get().readValue(value, Object.class);
+        return codec.deserialize(value, Object.class);
     }
 }
