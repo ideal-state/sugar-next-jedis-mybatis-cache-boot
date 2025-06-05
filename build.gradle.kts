@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "team.idealstate.sugar.boot"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 java {
     toolchain {
@@ -55,6 +55,32 @@ dependencies {
 publishing {
     repositories {
         project(project)
+    }
+    publications {
+        main {
+            pom {
+                description.set("Coffee(Java) with sugar is sweeter.")
+                url.set("https://github.com/ideal-state/sugar-next-jedis-mybatis-cache-boot")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/ideal-state/sugar-next-jedis-mybatis-cache-boot")
+                    connection.set("scm:git:https://github.com/ideal-state/sugar-next-jedis-mybatis-cache-boot.git")
+                    developerConnection.set("scm:git:https://github.com/ideal-state/sugar-next-jedis-mybatis-cache-boot.git")
+                }
+                developers {
+                    developer {
+                        id.set("ideal-state")
+                        name.set("ideal-state")
+                        email.set("support@idealstate.team")
+                    }
+                }
+            }
+        }
     }
 }
 

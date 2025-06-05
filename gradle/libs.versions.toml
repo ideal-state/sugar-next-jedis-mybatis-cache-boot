@@ -1,8 +1,8 @@
 [versions]
 jreleaser = "1.18.0"
 lombok = "1.18.38"
-sugar-next-jedis-boot = "0.1.0-SNAPSHOT"
-sugar-next-mybatis-boot = "0.1.0-SNAPSHOT"
+sugar-next-jedis-boot = "0.1.0"
+sugar-next-mybatis-boot = "0.1.0"
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
